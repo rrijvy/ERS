@@ -33,3 +33,29 @@
         display: none;
     }
 }
+
+.container{
+    width: 80% !important;
+}
+
+.form-inline .form-group{
+    padding: 10px !important;
+}
+
+.height{
+    height: 33%;
+    margin: 10px 0px;
+}
+
+.devide{
+    padding: 10px;
+    border-right: 1px solid;
+}
+
+.height-auto{
+    height: auto;
+}
+
+/*.btn{
+    border-radius: 17px !important;
+}*/
