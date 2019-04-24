@@ -1,1 +1,3 @@
-﻿// Write your JavaScript code.
+﻿$(window).bind('beforeunload', function () {
+    sessionStorage.clear();
+});

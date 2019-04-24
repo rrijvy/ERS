@@ -56,6 +56,20 @@
     height: auto;
 }
 
-/*.btn{
-    border-radius: 17px !important;
-}*/
+.list {
+    list-style-type: none;
+    padding:0;
+    margin:0;
+}
+
+.list li{
+    padding: 3px 0px;
+}
+
+.select{
+    border-right: 1px solid #333;
+}
+
+.wrapper{
+    padding: 3px 0px;
+}

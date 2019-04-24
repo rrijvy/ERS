@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using ERS.Data;
 using ERS.Models;
 using System;
+using ERS.ViewModels;
 
 namespace ERS.Controllers
 {
@@ -47,6 +48,29 @@ namespace ERS.Controllers
         // GET: ESSInfoes/Create
         public IActionResult Create()
         {
+            ESSEntryViewModel eSSEntry = new ESSEntryViewModel
+            {
+                Divisions = _context.Divisions.ToList(),
+                Districts = _context.Districts.ToList(),
+                Upazilas = _context.Upazilas.ToList()
+            };
+
+            return View(eSSEntry);
+        }
+
+        [HttpPost]
+        public IActionResult Create(ESSEntryModel model)
+        {
+            Employee employee = new Employee
+            {
+                Name = model.EmployeeName,
+                Designation = model.Designation,
+                Phone = model.EmployeePhone
+            };
+
+            _context.Employees.Add(employee);
+            _context.SaveChanges();
+
             string month = DateTime.UtcNow.ToString("MM");
             string year = DateTime.UtcNow.Year.ToString();
             ESSInfo lastEssInfo = _context.ESSInfos.LastOrDefault();
@@ -54,28 +78,19 @@ namespace ERS.Controllers
             if (lastEssInfo != null)
             {
                 essNumber = int.Parse(lastEssInfo.ESSCode.Substring(6));
-            }            
-            string essCode = month + year + essNumber++;
-            ViewData["ESSCode"] = essCode;
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id");
-            return View();
-        }
-
-        // POST: ESSInfoes/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,ESSCode,WorkingArea,EntryTime,EmployeeId")] ESSInfo eSSInfo)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(eSSInfo);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", eSSInfo.EmployeeId);
-            return View(eSSInfo);
+            string essCode = month + year + essNumber++;
+
+            ViewData["ESSCode"] = essCode;
+
+            ESSEntryViewModel eSSEntry = new ESSEntryViewModel
+            {
+                Divisions = _context.Divisions.ToList(),
+                Districts = _context.Districts.ToList(),
+                Upazilas = _context.Upazilas.ToList()
+            };
+
+            return View(eSSEntry);
         }
 
         // GET: ESSInfoes/Edit/5

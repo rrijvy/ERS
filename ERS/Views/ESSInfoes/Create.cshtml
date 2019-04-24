@@ -11,54 +11,63 @@
 
 <div class="row">
     <div class="col-md-12">
-        <form asp-action="Create">
+        <form>
             <div class="form-inline">
                 <div class="form-group">
                     <label asp-for="ESSInfo.ESSCode"></label>
-                    <input class="form-control" asp-for="ESSInfo.ESSCode" value="@ViewBag.ESSCode" readonly/>
+                    <input class="form-control" asp-for="ESSInfo.ESSCode" value="@ViewBag.ESSCode" readonly />
                 </div>
             </div>
             <div class="form-inline">
                 <div class="form-group">
                     <label asp-for="Employee.Name"></label>
-                    <input class="form-control" asp-for="Employee.Name" />
+                    <input id="employee-name" class="form-control" asp-for="Employee.Name" />
                 </div>
                 <div class="form-group">
                     <label asp-for="Employee.Designation"></label>
-                    <input class="form-control" asp-for="Employee.Designation" />
+                    <input id="designation" class="form-control" asp-for="Employee.Designation" />
                 </div>
                 <div class="form-group">
                     <label asp-for="ESSInfo.WorkingArea"></label>
-                    <input class="form-control" asp-for="ESSInfo.WorkingArea" />
+                    <input id="workingArea" class="form-control" asp-for="ESSInfo.WorkingArea" />
                 </div>
                 <div class="form-group">
                     <label asp-for="Employee.Phone"></label>
-                    <input class="form-control" asp-for="Employee.Phone" />
+                    <input id="employee-phone" class="form-control" asp-for="Employee.Phone" />
                 </div>
             </div>
             <hr />
             <div class="height-auto">
                 <div class="col-md-3 devide">
                     <div class="height">
-                        <button class="btn btn-primary">Division Info +</button>
+                        <button id="division-btn" class="btn btn-primary">Division Info +</button>
+                        <div id="divisions">
+
+                        </div>
                     </div>
                     <div class="height">
-                        <button class="btn btn-primary">Zilla Info +</button>
+                        <button id="zilla-btn" class="btn btn-primary">Zilla Info +</button>
+                        <div id="districts">
+
+                        </div>
                     </div>
                     <div class="height">
-                        <button class="btn btn-primary">Upazila Info +</button>
+                        <button id="upazila-btn" class="btn btn-primary">Upazila Info +</button>
+                        <div id="upazilas">
+
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-9">
                     <div>
-                        <button class="btn btn-primary pull-left">Product Info +</button>
-                        <button class="btn btn-primary pull-right">Product Template +</button>
+                        <button id="product-info" class="btn btn-primary pull-left">Product Info +</button>
+                        <button id="product-template" class="btn btn-primary pull-right">Product Template +</button>
                     </div>
                     <div style="padding-top: 50px;">
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <td><input type="checkbox" /></td>
+                                    <td><input id="head-checkbox" type="checkbox" /></td>
                                     <td>Product Name</td>
                                     <td>Quantity</td>
                                     <td>Price</td>
@@ -66,24 +75,124 @@
                             </thead>
                             <tbody></tbody>
                             <tfoot style="border: 1px solid;">
+                                <tr>
+                                    <td>-</td>
+                                    <td colspan="2">Total</td>
+                                    <td>-</td>
+                                </tr>
                             </tfoot>
                         </table>
                     </div>
                     <div class="pull-right">
-                        <button class="btn btn-danger">Reset</button>
-                        <button class="btn btn-success">Submit</button>
+                        <button id="reset-btn" type="reset" class="btn btn-danger">Reset</button>
+                        <button id="submit-btn" type="button" class="btn btn-success">Submit</button>
                     </div>
                 </div>
-                
             </div>
         </form>
     </div>
 </div>
 
-<div class="division">
-    
+<div id="division" title="Division Info">
+    <div class="col-md-12">
+        <div class="col-md-6 select">
+            <ul class="list">
+                @foreach (var item in Model.Divisions)
+                {
+                    <li><button class="btn btn-default division-clicked" value="@item.Name">@item.Name</button></li>
+                }
+            </ul>
+        </div>
+        <div class="col-md-6 division-selected">
+
+        </div>
+    </div>
 </div>
+
+<div id="district" title="District Info">
+    <div class="col-md-12">
+        <div class="col-md-6 select">
+            <ul class="list">
+                @foreach (var item in Model.Districts)
+                {
+                    <li><button class="btn btn-default district-clicked" value="@item.Name">@item.Name</button></li>
+                }
+            </ul>
+        </div>
+        <div class="col-md-6 district-selected">
+
+        </div>
+    </div>
+</div>
+
+<div id="upazila" title="Upazila Info">
+    <div class="col-md-12">
+        <div class="col-md-6 select">
+            <ul class="list">
+                @foreach (var item in Model.Upazilas)
+                {
+                    <li><button class="btn btn-default upazila-clicked" value="@item.Name">@item.Name</button></li>
+                }
+            </ul>
+        </div>
+        <div class="col-md-6 upazila-selected">
+
+        </div>
+    </div>
+</div>
+
+<div id="snackbar">Saved</div>
+<div id="snackbar">Not Saved</div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $("#division").dialog({
+            width: "400px",
+            modal: true,
+            resizable: false,
+            autoOpen: false,
+            show: {
+                effect: "fade",
+                duration: 500
+            },
+            hide: {
+                effect: "fade",
+                duration: 500
+            }
+        });
+
+        $("#district").dialog({
+            width: "400px",
+            modal: true,
+            resizable: false,
+            autoOpen: false,
+            show: {
+                effect: "fade",
+                duration: 500
+            },
+            hide: {
+                effect: "fade",
+                duration: 500
+            }
+        });
+
+        $("#upazila").dialog({
+            width: "400px",
+            modal: true,
+            resizable: false,
+            autoOpen: false,
+            show: {
+                effect: "fade",
+                duration: 500
+            },
+            hide: {
+                effect: "fade",
+                duration: 500
+            }
+        });
+    </script>
+
+    <script src="~/js/ess-info.js"></script>
 }
