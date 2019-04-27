@@ -45,6 +45,7 @@
 .height{
     height: 33%;
     margin: 10px 0px;
+    border: 1px solid transparent;
 }
 
 .devide{
@@ -72,4 +73,13 @@
 
 .wrapper{
     padding: 3px 0px;
+}
+
+.btn-link{
+    border: none !important;
+    display: inline-block !important;
+    text-decoration: none !important;
+}
+.squre{
+    border-radius: 0px !important;
 }

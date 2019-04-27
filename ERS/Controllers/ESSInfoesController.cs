@@ -7,16 +7,19 @@ using ERS.Data;
 using ERS.Models;
 using System;
 using ERS.ViewModels;
+using ERS.Services;
 
 namespace ERS.Controllers
 {
     public class ESSInfoesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IESSService _ess;
 
-        public ESSInfoesController(ApplicationDbContext context)
+        public ESSInfoesController(ApplicationDbContext context, IESSService ess)
         {
             _context = context;
+            _ess = ess;
         }
 
         // GET: ESSInfoes
@@ -52,7 +55,8 @@ namespace ERS.Controllers
             {
                 Divisions = _context.Divisions.ToList(),
                 Districts = _context.Districts.ToList(),
-                Upazilas = _context.Upazilas.ToList()
+                Upazilas = _context.Upazilas.ToList(),
+                Products = _context.Products.ToList()
             };
 
             return View(eSSEntry);
@@ -61,36 +65,35 @@ namespace ERS.Controllers
         [HttpPost]
         public IActionResult Create(ESSEntryModel model)
         {
-            Employee employee = new Employee
-            {
-                Name = model.EmployeeName,
-                Designation = model.Designation,
-                Phone = model.EmployeePhone
-            };
+            var emp = _context.Employees.Where(x => x.Name == model.EmployeeName).FirstOrDefault();
 
-            _context.Employees.Add(employee);
-            _context.SaveChanges();
-
-            string month = DateTime.UtcNow.ToString("MM");
-            string year = DateTime.UtcNow.Year.ToString();
-            ESSInfo lastEssInfo = _context.ESSInfos.LastOrDefault();
-            int essNumber = 1;
-            if (lastEssInfo != null)
+            if (emp == null)
             {
-                essNumber = int.Parse(lastEssInfo.ESSCode.Substring(6));
+                Employee employee = new Employee
+                {
+                    Name = model.EmployeeName,
+                    Designation = model.Designation,
+                    Phone = model.EmployeePhone
+                };
+                _context.Employees.Add(employee);
+                _context.SaveChanges();
+
+                string essCode = _ess.GenerateESSCode();
+
+                ESSInfo info = new ESSInfo
+                {
+                    EmployeeId = employee.Id,
+                    EntryTime = DateTime.UtcNow,
+                    WorkingArea = model.WorkingArea,
+                    ESSCode = essCode
+                };
+                _context.ESSInfos.Add(info);
+                _context.SaveChanges();
+
+                return Json(essCode);
             }
-            string essCode = month + year + essNumber++;
 
-            ViewData["ESSCode"] = essCode;
-
-            ESSEntryViewModel eSSEntry = new ESSEntryViewModel
-            {
-                Divisions = _context.Divisions.ToList(),
-                Districts = _context.Districts.ToList(),
-                Upazilas = _context.Upazilas.ToList()
-            };
-
-            return View(eSSEntry);
+            return View();
         }
 
         // GET: ESSInfoes/Edit/5

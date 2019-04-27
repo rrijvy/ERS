@@ -35,6 +35,7 @@ namespace ERS
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
+            services.AddTransient<IESSService, ESSService>();
 
             services.AddMvc();
         }

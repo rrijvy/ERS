@@ -15,7 +15,7 @@
             <div class="form-inline">
                 <div class="form-group">
                     <label asp-for="ESSInfo.ESSCode"></label>
-                    <input class="form-control" asp-for="ESSInfo.ESSCode" value="@ViewBag.ESSCode" readonly />
+                    <input id="ess-code" class="form-control" asp-for="ESSInfo.ESSCode" readonly />
                 </div>
             </div>
             <div class="form-inline">
@@ -60,24 +60,41 @@
                 </div>
                 <div class="col-md-9">
                     <div>
-                        <button id="product-info" class="btn btn-primary pull-left">Product Info +</button>
-                        <button id="product-template" class="btn btn-primary pull-right">Product Template +</button>
+                        <button id="product-info-btn" class="btn btn-primary pull-left">Product Info +</button>
+                        
+                        <button id="product-template-btn" class="btn btn-primary pull-right">Product Template +</button>
                     </div>
                     <div style="padding-top: 50px;">
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <td><input id="head-checkbox" type="checkbox" /></td>
-                                    <td>Product Name</td>
-                                    <td>Quantity</td>
-                                    <td>Price</td>
+                                    <td class="col-md-1"><input id="head-checkbox" type="checkbox" /></td>
+                                    <td class="col-md-4">Product Name</td>
+                                    <td class="col-md-3">Quantity</td>
+                                    <td class="col-md-3">Price</td>
+                                    <td class="col-md-1"></td>
                                 </tr>
                             </thead>
-                            <tbody></tbody>
+                            <tbody>
+                                <tr>
+                                    <td>-</td>
+                                    <td>
+                                        <select class="form-control squre" asp-items="@(new SelectList(Model.Products, "Id","Name"))">
+                                            <option>Select Product</option>
+                                        </select>
+                                    </td>
+                                    <td><input class="form-control squre" /></td>
+                                    <td><input class="form-control squre" /></td>
+                                    <td>
+                                        <button class="btn btn-default"><span class="glyphicon glyphicon-plus"></span></button>
+                                    </td>
+                                </tr>
+                            </tbody>
                             <tfoot style="border: 1px solid;">
                                 <tr>
                                     <td>-</td>
                                     <td colspan="2">Total</td>
+                                    <td>-</td>
                                     <td>-</td>
                                 </tr>
                             </tfoot>
@@ -141,6 +158,50 @@
     </div>
 </div>
 
+<div id="product-info" title="Product Info">
+    <div class="col-md-12">
+        <form>
+            <div class="form-group">
+                <label>Product Name</label>
+                <input id="product-name" class="form-control" />
+            </div>
+            <button id="prodcut-submit-btn" class="btn btn-default">Submit</button>
+        </form>
+    </div>
+</div>
+
+<div id="product-template" title="Product Info">
+    <div class="col-md-12">
+        <div class="form-inline">
+            <div class="form-group">
+                <input id="template-name" class="form-control" placeholder="Template Name" />
+            </div>
+            <button id="save-template-btn" class="btn btn-primary">Save Template</button>
+        </div>
+        <div class="form-inline">
+            <div class="form-group">
+                <select id="product-id" class="form-control" asp-items="@(new SelectList(Model.Products, "Id","Name"))">
+                    <option>Select Product Name</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <input id="product-quantity" class="form-control" placeholder="Product Quantity" />
+            </div>
+            <div class="form-group">
+                <input id="product-price" class="form-control" placeholder="Product Price" />
+            </div>
+            <button id="prodcut-template-add-btn" class="btn btn-default">
+                <span class="glyphicon glyphicon-plus"></span>
+            </button>
+        </div>
+        <div>
+            <table class="table table-hover table-bordered">
+                <tbody id="template-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 <div id="snackbar">Saved</div>
 <div id="snackbar">Not Saved</div>
 
@@ -180,6 +241,36 @@
 
         $("#upazila").dialog({
             width: "400px",
+            modal: true,
+            resizable: false,
+            autoOpen: false,
+            show: {
+                effect: "fade",
+                duration: 500
+            },
+            hide: {
+                effect: "fade",
+                duration: 500
+            }
+        });
+
+        $("#product-info").dialog({
+            width: "400px",
+            modal: true,
+            resizable: false,
+            autoOpen: false,
+            show: {
+                effect: "fade",
+                duration: 500
+            },
+            hide: {
+                effect: "fade",
+                duration: 500
+            }
+        });
+
+        $("#product-template").dialog({
+            width: "auto",
             modal: true,
             resizable: false,
             autoOpen: false,
