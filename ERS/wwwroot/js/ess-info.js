@@ -199,6 +199,46 @@
         });
         selectors.product_info.dialog('close');
         selectors.product_name.val(null);
+
+        $.ajax({
+            type: 'GET',
+            url: '/Products/',
+            cache: false,
+            dataType: "JSON",
+            contentType: "application/x-www-form-urlencoded",
+            success: function (response) {
+                console.log(response);
+                let productList = document.getElementById('productList');
+                productList.innerHTML = " ";
+                for (let i = 0; i < response.length; i++) {
+                    let option = document.createElement('option');
+                    option.value = response[i].id;
+                    option.innerHTML = response[i].name;
+                    productList.appendChild(option);
+                }
+                productList.value = null;
+            }
+        });
+
+        $.ajax({
+            type: 'GET',
+            url: '/Products/',
+            cache: false,
+            dataType: "JSON",
+            contentType: "application/x-www-form-urlencoded",
+            success: function (response) {
+                console.log(response);
+                let productList = document.getElementById('product-id');
+                productList.innerHTML = " ";
+                for (let i = 0; i < response.length; i++) {
+                    let option = document.createElement('option');
+                    option.value = response[i].id;
+                    option.innerHTML = response[i].name;
+                    productList.appendChild(option);
+                }
+                productList.value = null;
+            }
+        });
     });
 
     selectors.product_template_btn.on('click', function (e) {

@@ -79,7 +79,7 @@
                                 <tr>
                                     <td>-</td>
                                     <td>
-                                        <select class="form-control squre" asp-items="@(new SelectList(Model.Products, "Id","Name"))">
+                                        <select id="productList" class="form-control squre" asp-items="@(new SelectList(Model.Products, "Id","Name"))">
                                             <option>Select Product</option>
                                         </select>
                                     </td>

@@ -20,9 +20,10 @@ namespace ERS.Controllers
         }
 
         // GET: Products
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            return View(await _context.Products.ToListAsync());
+            var result = _context.Products.ToList();
+            return Json(result);
         }
 
         // GET: Products/Details/5
