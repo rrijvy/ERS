@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -21,29 +20,27 @@ namespace ERS.Controllers
         }
 
         // GET: ProductTemplates
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var applicationDbContext = _context.ProductTemplates.Include(p => p.Product);
-            return View(await applicationDbContext.ToListAsync());
+            return Json(_context.ProductTemplates.Select(x=>x.TemplateName).Distinct().ToList());
         }
 
         // GET: ProductTemplates/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public IActionResult Details(string templateName)
         {
-            if (id == null)
+            if (string.IsNullOrEmpty(templateName))
             {
                 return NotFound();
             }
 
-            var productTemplate = await _context.ProductTemplates
-                .Include(p => p.Product)
-                .SingleOrDefaultAsync(m => m.Id == id);
+            var productTemplate = _context.ProductTemplates.Where(x => x.TemplateName == templateName).Include(x=>x.Product);
+
             if (productTemplate == null)
             {
                 return NotFound();
             }
 
-            return View(productTemplate);
+            return Json(productTemplate);
         }
 
         // GET: ProductTemplates/Create
@@ -71,7 +68,7 @@ namespace ERS.Controllers
                     _context.SaveChanges();
                 }
             }
-            return View();
+            return Json(_context.ProductTemplates.Select(x => x.TemplateName).Distinct().ToList());
         }
 
         // GET: ProductTemplates/Edit/5

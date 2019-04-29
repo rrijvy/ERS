@@ -21,27 +21,38 @@
         template_body: $('#template-body'),
         save_template_btn: $('#save-template-btn'),
         template_name: $('#template-name'),
+        templateList: $('#templateList'),
 
         division_btn: $('#division-btn'),
         division: $('#division'),
+        divisions: $('#divisions'),
         division_clicked: $('.division-clicked'),
         division_selected: $('.division-selected'),
 
         district_btn: $('#zilla-btn'),
         district: $('#district'),
+        districts: $('#districts'),
         district_clicked: $('.district-clicked'),
         district_selected: $('.district-selected'),
 
         upazila_btn: $('#upazila-btn'),
         upazila: $('#upazila'),
+        upazilas: $('#upazilas'),
         upazila_clicked: $('.upazila-clicked'),
         upazila_selected: $('.upazila-selected'),
 
+        addedProducts: $('#addedProducts'),
+        productQuantity: $('#productQuantity'),
+        productPrice: $('#productPrice'),
+        individualProductAdd: $('#individualProductAdd'),
+
+        deleteUncheckedItems: $('#deleteUncheckedItems'),
         reset_btn: $('#reset-btn'),
         submit_btn: $('#submit-btn')
     };
 
     let templateProducts = [];
+    let productList = [];
 
     selectors.division_btn.on('click', function (e) {
         e.preventDefault(); e.stopPropagation();
@@ -195,19 +206,8 @@
             type: 'POST',
             url: '/Products/Create',
             dataType: 'json',
-            data: { productName: productName }
-        });
-        selectors.product_info.dialog('close');
-        selectors.product_name.val(null);
-
-        $.ajax({
-            type: 'GET',
-            url: '/Products/',
-            cache: false,
-            dataType: "JSON",
-            contentType: "application/x-www-form-urlencoded",
+            data: { productName: productName },
             success: function (response) {
-                console.log(response);
                 let productList = document.getElementById('productList');
                 productList.innerHTML = " ";
                 for (let i = 0; i < response.length; i++) {
@@ -217,28 +217,21 @@
                     productList.appendChild(option);
                 }
                 productList.value = null;
-            }
-        });
 
-        $.ajax({
-            type: 'GET',
-            url: '/Products/',
-            cache: false,
-            dataType: "JSON",
-            contentType: "application/x-www-form-urlencoded",
-            success: function (response) {
-                console.log(response);
-                let productList = document.getElementById('product-id');
-                productList.innerHTML = " ";
+                let product_id = document.getElementById('product-id');
+                product_id.innerHTML = " ";
                 for (let i = 0; i < response.length; i++) {
                     let option = document.createElement('option');
                     option.value = response[i].id;
                     option.innerHTML = response[i].name;
-                    productList.appendChild(option);
+                    product_id.appendChild(option);
                 }
-                productList.value = null;
+                product_id.value = null;
             }
         });
+        selectors.product_info.dialog('close');
+        selectors.product_name.val(null);
+
     });
 
     selectors.product_template_btn.on('click', function (e) {
@@ -249,6 +242,7 @@
 
     selectors.prodcut_template_add_btn.on('click', function (e) {
         e.preventDefault(); e.stopPropagation();
+        let dataAvailable = false;
         let product = {
             name: document.getElementById('product-id').options[document.getElementById('product-id').selectedIndex].text,
             id: selectors.product_id.val(),
@@ -256,16 +250,33 @@
             quantity: selectors.product_quantity.val()
         };
 
-        let tableRow = `<tr>
+        let tableRow = `<tr id="${product.id}">
                             <td>${product.name}</td>
                             <td>${product.quantity}</td>
                             <td>${product.price}</td>
                         </tr>`;
 
-        templateProducts.push(product);
+        for (let i = 0; i < templateProducts.length; i++) {
+            if (templateProducts[i].id === product.id) {
+                templateProducts[i] = product;
 
-        selectors.template_body.append(tableRow);
+                tableRow = `<td>${product.name}</td>
+                            <td>${product.quantity}</td>
+                            <td>${product.price}</td>`;
 
+                $(`#${product.id}`).html(tableRow);
+
+                dataAvailable = true;
+
+                break;
+            }
+        }
+
+        if (dataAvailable === false) {
+            templateProducts.push(product);
+
+            selectors.template_body.append(tableRow);
+        }
     });
 
     selectors.save_template_btn.on('click', function (e) {
@@ -280,13 +291,134 @@
                 type: 'POST',
                 url: '/ProductTemplates/Create',
                 dataType: 'json',
-                data: template
+                data: template,
+                success: function (response) {
+                    let templateList = document.getElementById('templateList');
+                    templateList.innerHTML = " ";
+                    for (let i = 0; i < response.length; i++) {
+                        let option = document.createElement('option');
+                        option.value = response[i];
+                        option.innerHTML = response[i];
+                        templateList.appendChild(option);
+                    }
+                    templateList.value = null;
+                }
             });
         }
+
+        selectors.template_body.html(" ");
 
         templateProducts.length = 0;
 
         $("#product-template").dialog('close');
+    });
+
+    selectors.templateList.on('change', function (e) {
+        e.preventDefault(); e.stopPropagation();
+
+        let template = $(this).val();
+
+        $.ajax({
+            type: 'GET',
+            url: '/ProductTemplates/Details/?templateName=' + template,
+            cache: false,
+            dataType: "JSON",
+            contentType: "application/x-www-form-urlencoded",
+            success: function (response) {
+                for (let i = 0; i < response.length; i++) {
+                    let product = {
+                        name: response[i].product.name,
+                        id: response[i].productId,
+                        quantity: response[i].quantity,
+                        price: response[i].price
+                    };
+                    let tableRow = `<tr>
+                                        <td><input type="checkbox" value="${Number(response[i].productId) + Number(response[i].price)}" checked></td>
+                                        <td>${response[i].product.name}</td>
+                                        <td>${response[i].quantity}</td>
+                                        <td>${response[i].price}</td>
+                                    </tr>`;
+
+                    productList.push(product);
+                    selectors.addedProducts.append(tableRow);
+                }
+            }
+        });
+
+    });
+
+    selectors.individualProductAdd.on('click', function (e) {
+        e.preventDefault(); e.stopPropagation();
+        let dataAvailable = false;
+
+        let product = {
+            name: document.getElementById('productList').options[document.getElementById('productList').selectedIndex].text,
+            id: Number(document.getElementById('productList').options[document.getElementById('productList').selectedIndex].value),
+            quantity: selectors.productQuantity.val(),
+            price: selectors.productPrice.val()
+        };
+
+        let tableRow = `<tr>
+                            <td><input type="checkbox" value="${Number(product.id) + Number(product.price)}" checked /></td>
+                            <td>${product.name}</td>
+                            <td>${product.quantity}</td>
+                            <td>${product.price}</td>
+                        </tr>`;
+
+        //for (let i = 0; i < productList.length; i++) {
+        //    if (productList[i].id === product.id) {
+        //        tableRow = `<td><input type="checkbox" value="${product.id}" checked /></td>
+        //                    <td>${product.name}</td>
+        //                    <td>${product.quantity}</td>
+        //                    <td>${product.price}</td>`;
+
+        //        $(`#${product.name[product.id]}`).html(tableRow);
+        //        productList[i] = product;
+        //        dataAvailable = true;
+        //        break;
+        //    }
+        //}
+        if (dataAvailable === false) {
+            selectors.addedProducts.append(tableRow);
+            productList.push(product);
+        }
+        selectors.productQuantity.val("");
+        selectors.productPrice.val("");
+    });
+
+    selectors.deleteUncheckedItems.on('click', function (e) {
+        e.preventDefault(); e.stopPropagation();
+
+        $('#addedProducts tr').each(function () {
+            let value = Number($(this).find('td input:unchecked').attr('value'));
+            if (value !== undefined) {
+                for (let i = 0; i < productList.length; i++) {
+                    let val = Number(productList[i].id) + Number(productList[i].price);
+                    if (val === value) {
+                        productList.splice(i, 1);
+                        i--;
+                    }
+                }
+            }
+            $(this).find('td input:unchecked').closest('tr').remove();
+        });
+        console.log(productList);
+    });
+
+    selectors.reset_btn.on('click', function (e) {
+        e.preventDefault(); e.stopPropagation();
+        sessionStorage.clear();
+        templateProducts.length = 0;
+        selectors.ess_code.val(null);
+        selectors.employee_name.val(null);
+        selectors.employee_phone.val(null);
+        selectors.designation.val(null);
+        selectors.workingArea.val(null);
+        selectors.template_body.html(" ");
+        selectors.divisions.html(" ");
+        selectors.districts.html(" ");
+        selectors.upazilas.html(" ");
+        selectors.addedProducts.html(" ");
     });
 
     selectors.submit_btn.on('click', function (e) {
@@ -332,7 +464,8 @@
             employeePhone: selectors.employee_phone.val(),
             divisions: divisions,
             districts: districts,
-            upazilas: upazilas
+            upazilas: upazilas,
+            products: productList
         };
 
         console.log(postObject);

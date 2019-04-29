@@ -16,5 +16,6 @@ namespace ERS.ViewModels
         public List<Division> Divisions { get; set; }
         public List<District> Districts { get; set; }
         public List<Upazila> Upazilas { get; set; }
+        public List<string> ProductTemplates { get; set; }
     }
 }

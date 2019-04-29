@@ -56,7 +56,8 @@ namespace ERS.Controllers
                 Divisions = _context.Divisions.ToList(),
                 Districts = _context.Districts.ToList(),
                 Upazilas = _context.Upazilas.ToList(),
-                Products = _context.Products.ToList()
+                Products = _context.Products.ToList(),
+                ProductTemplates = _context.ProductTemplates.Select(x=>x.TemplateName).Distinct().ToList()
             };
 
             return View(eSSEntry);

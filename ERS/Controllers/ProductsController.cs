@@ -63,7 +63,7 @@ namespace ERS.Controllers
                 _context.Products.Add(product);
                 _context.SaveChanges();
             }
-            return View();
+            return Json(_context.Products.ToList());
         }
 
         // GET: Products/Edit/5
