@@ -364,20 +364,6 @@
                             <td>${product.quantity}</td>
                             <td>${product.price}</td>
                         </tr>`;
-
-        //for (let i = 0; i < productList.length; i++) {
-        //    if (productList[i].id === product.id) {
-        //        tableRow = `<td><input type="checkbox" value="${product.id}" checked /></td>
-        //                    <td>${product.name}</td>
-        //                    <td>${product.quantity}</td>
-        //                    <td>${product.price}</td>`;
-
-        //        $(`#${product.name[product.id]}`).html(tableRow);
-        //        productList[i] = product;
-        //        dataAvailable = true;
-        //        break;
-        //    }
-        //}
         if (dataAvailable === false) {
             selectors.addedProducts.append(tableRow);
             productList.push(product);
@@ -458,6 +444,8 @@
         }
 
         let postObject = {
+            eSSCode: selectors.ess_code.val(),
+            employeeId: $('#employeeId').val(),
             employeeName: selectors.employee_name.val(),
             designation: selectors.designation.val(),
             workingArea: selectors.workingArea.val(),
@@ -476,7 +464,9 @@
             dataType: 'json',
             data: postObject,
             success: function (response) {
-                selectors.ess_code.val(response);
+                console.log(response);
+                selectors.ess_code.val(response.essCode);
+                $('#employeeId').val(response.employeeId);
             },
             complete: function () {
                 var x = document.getElementById("snackbar");
@@ -487,6 +477,7 @@
         });
     });
 })();
+
 
 $('#upazila').on('dialogclose', function () {
     let numberOfUpazila = Number(sessionStorage.getItem('numberOfUpazila'));

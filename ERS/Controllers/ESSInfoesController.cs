@@ -8,6 +8,7 @@ using ERS.Models;
 using System;
 using ERS.ViewModels;
 using ERS.Services;
+using System.Collections.Generic;
 
 namespace ERS.Controllers
 {
@@ -57,7 +58,7 @@ namespace ERS.Controllers
                 Districts = _context.Districts.ToList(),
                 Upazilas = _context.Upazilas.ToList(),
                 Products = _context.Products.ToList(),
-                ProductTemplates = _context.ProductTemplates.Select(x=>x.TemplateName).Distinct().ToList()
+                ProductTemplates = _context.ProductTemplates.Select(x => x.TemplateName).Distinct().ToList()
             };
 
             return View(eSSEntry);
@@ -66,9 +67,7 @@ namespace ERS.Controllers
         [HttpPost]
         public IActionResult Create(ESSEntryModel model)
         {
-            var emp = _context.Employees.Where(x => x.Name == model.EmployeeName).FirstOrDefault();
-
-            if (emp == null)
+            if (model.ESSCode == null && model.EmployeeId == 0)
             {
                 Employee employee = new Employee
                 {
@@ -77,7 +76,6 @@ namespace ERS.Controllers
                     Phone = model.EmployeePhone
                 };
                 _context.Employees.Add(employee);
-                _context.SaveChanges();
 
                 string essCode = _ess.GenerateESSCode();
 
@@ -89,9 +87,122 @@ namespace ERS.Controllers
                     ESSCode = essCode
                 };
                 _context.ESSInfos.Add(info);
+
                 _context.SaveChanges();
 
-                return Json(essCode);
+                return Json(new { essCode, employeeId = employee.Id });
+            }
+            else
+            {
+                Employee employee = new Employee
+                {
+                    Id = model.EmployeeId,
+                    Name = model.EmployeeName,
+                    Designation = model.Designation,
+                    Phone = model.EmployeePhone
+                };
+                _context.Employees.Update(employee);
+
+                ESSInfo info = _context.ESSInfos.Where(x => x.ESSCode == model.ESSCode).FirstOrDefault();
+
+                info.WorkingArea = model.WorkingArea;
+                
+                _context.ESSInfos.Update(info);
+
+                if (model.Divisions.Count() > 0)
+                {
+                    List<EmpDivisionMap> empDivisionMap = _context.EmpDivisionMaps.Where(x => x.ESSInfoId == info.Id).ToList();
+                    _context.EmpDivisionMaps.RemoveRange(empDivisionMap);
+
+                    foreach (var item in model.Divisions)
+                    {
+                        Division division = _context.Divisions.Where(x => x.Name == item).FirstOrDefault();
+                        EmpDivisionMap empDivision = new EmpDivisionMap
+                        {
+                            EmployeeId = model.EmployeeId,
+                            DivisionId = division.Id,
+                            ESSInfoId = info.Id
+                        };
+                        _context.EmpDivisionMaps.Add(empDivision);
+                    }
+                }
+                else
+                {
+                    List<EmpDivisionMap> empDivisionMap = _context.EmpDivisionMaps.Where(x => x.ESSInfoId == info.Id).ToList();
+                    _context.EmpDivisionMaps.RemoveRange(empDivisionMap);
+                }
+
+                if (model.Districts.Count() > 0)
+                {
+                    List<EmpDistrictMap> empDistrictMaps = _context.EmpDistrictMaps.Where(x => x.ESSInfoId == info.Id).ToList();
+                    _context.EmpDistrictMaps.RemoveRange(empDistrictMaps);
+
+                    foreach (var item in model.Districts)
+                    {
+                        District district = _context.Districts.Where(x => x.Name == item).FirstOrDefault();
+                        EmpDistrictMap empDistrict = new EmpDistrictMap
+                        {
+                            EmployeeId = model.EmployeeId,
+                            DistrictId = district.Id,
+                            ESSInfoId = info.Id
+                        };
+                        _context.EmpDistrictMaps.Add(empDistrict);
+                    }
+                }
+                else
+                {
+                    List<EmpDistrictMap> empDistrictMaps = _context.EmpDistrictMaps.Where(x => x.ESSInfoId == info.Id).ToList();
+                    _context.EmpDistrictMaps.RemoveRange(empDistrictMaps);
+                }
+
+                if (model.Upazilas.Count() > 0)
+                {
+                    List<EmpUpazilaMap> empUpazilaMaps = _context.EmpUpazilaMaps.Where(x => x.ESSInfoId == info.Id).ToList();
+                    _context.EmpUpazilaMaps.RemoveRange(empUpazilaMaps);
+
+                    foreach (var item in model.Upazilas)
+                    {
+                        Upazila upazila = _context.Upazilas.Where(x => x.Name == item).FirstOrDefault();
+                        EmpUpazilaMap empUpazila = new EmpUpazilaMap
+                        {
+                            EmployeeId = model.EmployeeId,
+                            UpazilaId = upazila.Id,
+                            ESSInfoId = info.Id
+                        };
+                        _context.EmpUpazilaMaps.Add(empUpazila);
+                    }
+                }
+                else
+                {
+                    List<EmpDistrictMap> empDistrictMaps = _context.EmpDistrictMaps.Where(x => x.ESSInfoId == info.Id).ToList();
+                    _context.EmpDistrictMaps.RemoveRange(empDistrictMaps);
+                }
+
+                if (model.Products.Count() > 0)
+                {
+                    List<EmpProductMap> empProductMaps = _context.EmpProductMaps.Where(x => x.ESSInfoId == info.Id).ToList();
+                    _context.EmpProductMaps.RemoveRange(empProductMaps);
+
+                    foreach (var item in model.Products)
+                    {
+                        EmpProductMap empProduct = new EmpProductMap
+                        {
+                            EmployeeId = model.EmployeeId,
+                            ESSInfoId = info.Id,
+                            Price = item.Price,
+                            Quantity = item.Quantity,
+                            ProductId = item.Id
+                        };
+                        _context.EmpProductMaps.Add(empProduct);
+                    }
+                }
+                else
+                {
+                    List<EmpProductMap> empProductMaps = _context.EmpProductMaps.Where(x => x.ESSInfoId == info.Id).ToList();
+                    _context.EmpProductMaps.RemoveRange(empProductMaps);
+                }
+
+                _context.SaveChanges();
             }
 
             return View();
