@@ -1,8 +1,4 @@
-﻿using ERS.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace ERS.ViewModels
 {
@@ -15,7 +11,6 @@ namespace ERS.ViewModels
             Districts = new List<string>();
             Upazilas = new List<string>();
         }
-
         public string ESSCode { get; set; }
         public int EmployeeId { get; set; }
         public string EmployeeName { get; set; }

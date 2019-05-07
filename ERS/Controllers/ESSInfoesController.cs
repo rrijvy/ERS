@@ -106,7 +106,7 @@ namespace ERS.Controllers
                 ESSInfo info = _context.ESSInfos.Where(x => x.ESSCode == model.ESSCode).FirstOrDefault();
 
                 info.WorkingArea = model.WorkingArea;
-                
+
                 _context.ESSInfos.Update(info);
 
                 if (model.Divisions.Count() > 0)
@@ -294,6 +294,28 @@ namespace ERS.Controllers
         private bool ESSInfoExists(int id)
         {
             return _context.ESSInfos.Any(e => e.Id == id);
+        }
+
+        [HttpGet]
+        public IActionResult Report()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult ReportView(string essCode)
+        {
+            ESSInfo info = _context.ESSInfos.FirstOrDefault(x => x.ESSCode == essCode);
+            ReportViewModel report = new ReportViewModel
+            {
+                ESSInfo = info,
+                Employee = _context.Employees.FirstOrDefault(x => x.Id == info.EmployeeId),
+                EmpProductMap = _context.EmpProductMaps.Where(x => x.ESSInfoId == info.Id).Include(x => x.Product).ToList(),
+                EmpDivisionMap = _context.EmpDivisionMaps.Where(x => x.ESSInfoId == info.Id).Include(x => x.Division).ToList(),
+                EmpDistrictMap = _context.EmpDistrictMaps.Where(x => x.ESSInfoId == info.Id).Include(x => x.District).ToList(),
+                EmpUpazilaMap = _context.EmpUpazilaMaps.Where(x => x.ESSInfoId == info.Id).Include(x => x.Upazila).ToList()
+            };
+            return View(report);
         }
     }
 }

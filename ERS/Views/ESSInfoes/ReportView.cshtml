@@ -1,0 +1,85 @@
+﻿@model ReportViewModel
+@{
+    ViewData["Title"] = "ReportView";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int serialNo = 0;
+    double totalPrice = 0;
+    double totalQuantity = 0;
+}
+
+<h2>ESS Report</h2>
+<div class="col-md-12">
+    <form class="form-inline" action="ReportView" method="post">
+        <label class="control-label">Ess Code </label>
+        <div class="form-group">
+            <input name="essCode" type="text" class="form-control" />
+        </div>
+        <button class="btn btn-primary"><span class="glyphicon glyphicon-search"></span></button>
+    </form>
+    <hr />
+    <div>
+        <div><p>Executive Info</p></div>
+        <div>
+            <div class="col-md-3" style="padding:0;"><p>Name: @Model.Employee.Name</p></div>
+            <div class="col-md-3"><p>Designation: @Model.Employee.Designation</p></div>
+            <div class="col-md-3"><p>Wroking Area: @Model.ESSInfo.WorkingArea</p></div>
+            <div class="col-md-3"><p>Cell: @Model.Employee.Phone</p></div>
+        </div>
+    </div>
+    <div class="col-md-12" style="padding: 0;"><hr /></div>
+    <div class="col-md-12" style="padding: 0;">
+        <div class="col-md-3" style="padding:0;">
+            <h3>Working Area</h3>
+            <h4>Division Info</h4>
+            <ul>
+                @foreach (var item in Model.EmpDivisionMap)
+                {
+                    <li>@item.Division.Name</li>
+                }
+            </ul>
+            <h4>District Info</h4>
+            <ul>
+                @foreach (var item in Model.EmpDistrictMap)
+                {
+                    <li>@item.District.Name</li>
+                }
+            </ul>
+            <h4>Upazila Info</h4>
+            <ul>
+                @foreach (var item in Model.EmpUpazilaMap)
+                {
+                    <li>@item.Upazila.Name</li>
+                }
+            </ul>
+        </div>
+        <div class="col-md-9" style="padding:0;">
+            <h3 style="padding-bottom: 20px;">Sales Products</h3>
+            <table class="table table-bordered table-hover table-responsive">
+                <tbody>
+                    @foreach (var item in Model.EmpProductMap)
+                    {
+                        ++serialNo;
+                        totalQuantity += item.Quantity;
+                        totalPrice += item.Price;
+                        <tr>
+                            <td>@serialNo</td>
+                            <td>@item.Product.Name</td>
+                            <td>@item.Quantity</td>
+                            <td>@item.Price</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td>-</td>
+                        <td>Total</td>
+                        <td>@totalQuantity</td>
+                        <td>@totalPrice</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <div class="col-md-12"><hr /></div>
+</div>
+
