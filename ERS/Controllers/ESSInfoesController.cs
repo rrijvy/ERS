@@ -208,7 +208,6 @@ namespace ERS.Controllers
             return View();
         }
 
-        // GET: ESSInfoes/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -216,18 +215,30 @@ namespace ERS.Controllers
                 return NotFound();
             }
 
-            var eSSInfo = await _context.ESSInfos.SingleOrDefaultAsync(m => m.Id == id);
-            if (eSSInfo == null)
+            var eSSInfo = await _context.ESSInfos.Include(x => x.Employee).SingleOrDefaultAsync(m => m.Id == id);
+
+            ESSEditModel model = new ESSEditModel
             {
-                return NotFound();
-            }
+                ESSCode = eSSInfo.ESSCode,
+                Name = eSSInfo.Employee.Name,
+                Designation = eSSInfo.Employee.Designation,
+                WorkingArea = eSSInfo.WorkingArea,
+                Phone = eSSInfo.Employee.Phone,
+                EmpDistricts = _context.EmpDistrictMaps.Where(x => x.ESSInfoId == eSSInfo.Id).Include(x=>x.District).ToList(),
+                EmpDivisions = _context.EmpDivisionMaps.Where(x => x.ESSInfoId == eSSInfo.Id).Include(x => x.Division).ToList(),
+                EmpUpazilas = _context.EmpUpazilaMaps.Where(x => x.ESSInfoId == eSSInfo.Id).Include(x => x.Upazila).ToList(),
+                EmpProducts = _context.EmpProductMaps.Where(x=>x.ESSInfoId==eSSInfo.Id).Include(x=>x.Product).ToList(),
+                Products = _context.Products.ToList(),
+                Divisions = _context.Divisions.ToList(),
+                Districts = _context.Districts.ToList(),
+                Upazilas = _context.Upazilas.ToList(),
+                ProductTemplates = _context.ProductTemplates.Select(x => x.TemplateName).Distinct().ToList()
+            };
+
             ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", eSSInfo.EmployeeId);
-            return View(eSSInfo);
+            return View(model);
         }
 
-        // POST: ESSInfoes/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,ESSCode,WorkingArea,EntryTime,EmployeeId")] ESSInfo eSSInfo)
@@ -261,7 +272,6 @@ namespace ERS.Controllers
             return View(eSSInfo);
         }
 
-        // GET: ESSInfoes/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -280,7 +290,6 @@ namespace ERS.Controllers
             return View(eSSInfo);
         }
 
-        // POST: ESSInfoes/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

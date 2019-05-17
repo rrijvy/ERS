@@ -12,7 +12,7 @@ namespace ERS.Services
         public ESSService(ApplicationDbContext context)
         {
             _context = context;
-        }        
+        }
 
         public string GenerateESSCode()
         {

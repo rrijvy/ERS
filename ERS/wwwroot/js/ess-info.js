@@ -51,6 +51,61 @@
         submit_btn: $('#submit-btn')
     };
 
+    let existed_division = document.getElementsByClassName("existed-division");
+    let existed_district = document.getElementsByClassName("existed-district");
+    let existed_upazila = document.getElementsByClassName("existed-upazila");
+
+    for (let item of existed_division) {
+        divisionName = item.getAttribute('value');
+
+        let numberOfDivision = Number(sessionStorage.getItem('numberOfDivision'));
+
+        if (numberOfDivision === undefined) {
+            numberOfDivision = 1;
+            sessionStorage.setItem('numberOfDivision', numberOfDivision);
+        }
+
+        numberOfDivision++;
+
+        sessionStorage.setItem('numberOfDivision', numberOfDivision);
+
+        sessionStorage.setItem(`division[${numberOfDivision}]`, divisionName);
+    }
+
+    for (let item of existed_district) {
+        districtnName = item.getAttribute('value');
+
+        let numberOfDistrict = Number(sessionStorage.getItem('numberOfDistrict'));
+
+        if (numberOfDistrict === undefined) {
+            numberOfDistrict = 1;
+            sessionStorage.setItem('numberOfDistrict', numberOfDistrict);
+        }
+
+        numberOfDistrict++;
+
+        sessionStorage.setItem('numberOfDistrict', numberOfDistrict);
+
+        sessionStorage.setItem(`district[${numberOfDistrict}]`, districtnName);
+    }
+
+    for (let item of existed_upazila) {
+        upazilaName = item.getAttribute('value');
+
+        let numberOfUpazila = Number(sessionStorage.getItem('numberOfUpazila'));
+
+        if (numberOfUpazila === undefined) {
+            numberOfUpazila = 1;
+            sessionStorage.setItem('numberOfUpazila', numberOfUpazila);
+        }
+
+        numberOfUpazila++;
+
+        sessionStorage.setItem('numberOfUpazila', numberOfUpazila);
+
+        sessionStorage.setItem(`upazila[${numberOfUpazila}]`, upazilaName);
+    }
+
     let templateProducts = [];
     let productList = [];
 
