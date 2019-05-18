@@ -9,6 +9,7 @@ namespace ERS.ViewModels
     public class ESSEditModel
     {
         public string ESSCode { get; set; }
+        public int EmployeeId { get; set; }
         public string Name { get; set; }
         public string Designation { get; set; }
         public string WorkingArea { get; set; }

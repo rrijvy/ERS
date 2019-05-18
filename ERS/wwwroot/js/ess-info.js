@@ -48,7 +48,8 @@
 
         deleteUncheckedItems: $('#deleteUncheckedItems'),
         reset_btn: $('#reset-btn'),
-        submit_btn: $('#submit-btn')
+        submit_btn: $('#submit-btn'),
+        submit_edit_btn: $('#submit-edit-btn')
     };
 
     let existed_division = document.getElementsByClassName("existed-division");
@@ -108,6 +109,18 @@
 
     let templateProducts = [];
     let productList = [];
+
+    let existed_product = document.getElementsByClassName('existed-product');
+
+    for (let item of existed_product) {
+        let product = {
+            id: item.getAttribute("data-id"),
+            name: item.cells[1].innerHTML,
+            quantity: item.cells[2].innerHTML,
+            price: item.cells[3].innerHTML
+        };
+        productList.push(product);
+    }
 
     selectors.division_btn.on('click', function (e) {
         e.preventDefault(); e.stopPropagation();
@@ -511,11 +524,79 @@
             products: productList
         };
 
+        $.ajax({
+            type: 'POST',
+            url: '/ESSInfoes/Create',
+            dataType: 'json',
+            data: postObject,
+            success: function (response) {
+                console.log(response);
+                selectors.ess_code.val(response.essCode);
+                $('#employeeId').val(response.employeeId);
+            },
+            complete: function () {
+                var x = document.getElementById("snackbar");
+                x.className = "show";
+                setTimeout(function () { x.className = x.className.replace("show", ""); }, 3000);
+            }
+
+        });
+    });
+
+    selectors.submit_edit_btn.on('click', function (e) {
+        e.preventDefault(); e.stopPropagation();
+
+        let numberOfDivision = Number(sessionStorage.getItem('numberOfDivision'));
+        let numberOfDistrict = Number(sessionStorage.getItem('numberOfDistrict'));
+        let numberOfUpazila = Number(sessionStorage.getItem('numberOfUpazila'));
+
+        let divisions = []; let districts = []; let upazilas = [];
+
+        for (let i = 1; i <= numberOfDivision; i++) {
+            let divisionName = sessionStorage.getItem(`division[${i}]`);
+            if (divisionName === "empty") {
+                continue;
+            } else {
+                divisions.push(divisionName);
+            }
+        }
+
+        for (let i = 1; i <= numberOfDistrict; i++) {
+            let districtName = sessionStorage.getItem(`district[${i}]`);
+            if (districtName === "empty") {
+                continue;
+            } else {
+                districts.push(districtName);
+            }
+        }
+
+        for (let i = 1; i <= numberOfUpazila; i++) {
+            let upazilaName = sessionStorage.getItem(`upazila[${i}]`);
+            if (upazilaName === "empty") {
+                continue;
+            } else {
+                upazilas.push(upazilaName);
+            }
+        }
+
+        let postObject = {
+            eSSCode: selectors.ess_code.val(),
+            employeeId: $('#employeeId').val(),
+            employeeName: selectors.employee_name.val(),
+            designation: selectors.designation.val(),
+            workingArea: selectors.workingArea.val(),
+            employeePhone: selectors.employee_phone.val(),
+            divisions: divisions,
+            districts: districts,
+            upazilas: upazilas,
+            products: productList
+        };
+
         console.log(postObject);
 
         $.ajax({
             type: 'POST',
-            url: '/ESSInfoes/Create',
+            url: '/ESSInfoes/Edit',
             dataType: 'json',
             data: postObject,
             success: function (response) {

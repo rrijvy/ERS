@@ -5,12 +5,13 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     double quantity = 0;
     double price = 0;
+    double value = 0;
 }
 
 <h2 class="alert alert-info text-center">ESS Entry Form</h2>
 
 <hr />
-
+<input id="employeeId" asp-for="EmployeeId" />
 <div class="row">
     <div class="col-md-12">
         <form>
@@ -120,8 +121,9 @@
                                 {
                                     quantity += item.Quantity;
                                     price += item.Price;
-                                    <tr class="existed-product">
-                                        <td><input type="checkbox" value="@item.Product.Id+@item.Price" checked /></td>
+                                    value = item.Product.Id + item.Price;
+                                    <tr class="existed-product" data-id="@item.Product.Id">
+                                        <td><input type="checkbox" value="@value" checked /></td>
                                         <td>@item.Product.Name</td>
                                         <td>@item.Quantity</td>
                                         <td>@item.Price</td>
@@ -145,7 +147,7 @@
                     </div>
                     <div class="pull-right">
                         <button id="reset-btn" type="reset" class="btn btn-danger">Reset</button>
-                        <button id="submit-btn" type="button" class="btn btn-success">Submit</button>
+                        <button id="submit-edit-btn" type="button" class="btn btn-success">Submit</button>
                     </div>
                 </div>
             </div>

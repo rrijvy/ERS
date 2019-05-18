@@ -220,14 +220,15 @@ namespace ERS.Controllers
             ESSEditModel model = new ESSEditModel
             {
                 ESSCode = eSSInfo.ESSCode,
+                EmployeeId = eSSInfo.EmployeeId,
                 Name = eSSInfo.Employee.Name,
                 Designation = eSSInfo.Employee.Designation,
                 WorkingArea = eSSInfo.WorkingArea,
                 Phone = eSSInfo.Employee.Phone,
-                EmpDistricts = _context.EmpDistrictMaps.Where(x => x.ESSInfoId == eSSInfo.Id).Include(x=>x.District).ToList(),
+                EmpDistricts = _context.EmpDistrictMaps.Where(x => x.ESSInfoId == eSSInfo.Id).Include(x => x.District).ToList(),
                 EmpDivisions = _context.EmpDivisionMaps.Where(x => x.ESSInfoId == eSSInfo.Id).Include(x => x.Division).ToList(),
                 EmpUpazilas = _context.EmpUpazilaMaps.Where(x => x.ESSInfoId == eSSInfo.Id).Include(x => x.Upazila).ToList(),
-                EmpProducts = _context.EmpProductMaps.Where(x=>x.ESSInfoId==eSSInfo.Id).Include(x=>x.Product).ToList(),
+                EmpProducts = _context.EmpProductMaps.Where(x => x.ESSInfoId == eSSInfo.Id).Include(x => x.Product).ToList(),
                 Products = _context.Products.ToList(),
                 Divisions = _context.Divisions.ToList(),
                 Districts = _context.Districts.ToList(),
@@ -240,36 +241,81 @@ namespace ERS.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,ESSCode,WorkingArea,EntryTime,EmployeeId")] ESSInfo eSSInfo)
+        public IActionResult Edit(ESSEntryModel model)
         {
-            if (id != eSSInfo.Id)
+            var ess = _context.ESSInfos.SingleOrDefault(x => x.ESSCode == model.ESSCode);
+
+            var empProducts = _context.EmpProductMaps.Where(x => x.ESSInfoId == ess.Id).ToList();
+            _context.EmpProductMaps.RemoveRange(empProducts);
+            if (model.Products.Count() > 0)
             {
-                return NotFound();
+                foreach (var item in model.Products)
+                {
+                    EmpProductMap empProduct = new EmpProductMap
+                    {
+                        EmployeeId = model.EmployeeId,
+                        ESSInfoId = ess.Id,
+                        Price = item.Price,
+                        Quantity = item.Quantity,
+                        ProductId = item.Id
+                    };
+                    _context.EmpProductMaps.Add(empProduct);
+                }
             }
 
-            if (ModelState.IsValid)
+            var empDivisions = _context.EmpDivisionMaps.Where(x => x.ESSInfoId == ess.Id).ToList();
+            _context.EmpDivisionMaps.RemoveRange(empDivisions);
+            if (model.Divisions.Count() > 0)
             {
-                try
+                foreach (var item in model.Divisions)
                 {
-                    _context.Update(eSSInfo);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ESSInfoExists(eSSInfo.Id))
+                    Division division = _context.Divisions.Where(x => x.Name == item).FirstOrDefault();
+                    EmpDivisionMap empDivision = new EmpDivisionMap
                     {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                        EmployeeId = model.EmployeeId,
+                        DivisionId = division.Id,
+                        ESSInfoId = ess.Id
+                    };
+                    _context.EmpDivisionMaps.Add(empDivision);
                 }
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", eSSInfo.EmployeeId);
-            return View(eSSInfo);
+
+            var empDistricts = _context.EmpDistrictMaps.Where(x => x.ESSInfoId == ess.Id).ToList();
+            _context.EmpDistrictMaps.RemoveRange(empDistricts);
+            if (model.Districts.Count() > 0)
+            {
+                foreach (var item in model.Districts)
+                {
+                    District district = _context.Districts.Where(x => x.Name == item).FirstOrDefault();
+                    EmpDistrictMap empDistrict = new EmpDistrictMap
+                    {
+                        EmployeeId = model.EmployeeId,
+                        DistrictId = district.Id,
+                        ESSInfoId = ess.Id
+                    };
+                    _context.EmpDistrictMaps.Add(empDistrict);
+                }
+            }
+            var empUpazilas = _context.EmpUpazilaMaps.Where(x => x.ESSInfoId == ess.Id).ToList();
+            _context.EmpUpazilaMaps.RemoveRange(empUpazilas);
+            if (model.Upazilas.Count() > 0)
+            {
+                foreach (var item in model.Upazilas)
+                {
+                    Upazila upazila = _context.Upazilas.Where(x => x.Name == item).FirstOrDefault();
+                    EmpUpazilaMap empUpazila = new EmpUpazilaMap
+                    {
+                        EmployeeId = model.EmployeeId,
+                        UpazilaId = upazila.Id,
+                        ESSInfoId = ess.Id
+                    };
+                    _context.EmpUpazilaMaps.Add(empUpazila);
+                }
+            }
+
+            _context.SaveChanges();
+
+            return View();
         }
 
         public async Task<IActionResult> Delete(int? id)
