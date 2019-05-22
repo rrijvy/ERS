@@ -23,11 +23,24 @@ namespace ERS.Controllers
             _ess = ess;
         }
 
-        // GET: ESSInfoes
-        public async Task<IActionResult> Index()
+
+        public IActionResult Index()
         {
-            var applicationDbContext = _context.ESSInfos.Include(e => e.Employee);
-            return View(await applicationDbContext.ToListAsync());
+            var eSSInfos = _context.ESSInfos.Where(x => x.EntryTime == DateTime.UtcNow.Date).Include(e => e.Employee);
+            return View(eSSInfos.ToList());
+        }
+
+        public IActionResult Search(DateTime toDate, DateTime fromDate)
+        {
+            ViewData["toDate"] = toDate;
+            ViewData["fromDate"] = fromDate;
+            var eSSInfos = _context.ESSInfos.Where(x => x.EntryTime >= fromDate && x.EntryTime <= toDate).Include(e => e.Employee);
+            return View(eSSInfos.ToList());
+        }
+
+        public IActionResult SeeAll()
+        {
+            return View(_context.ESSInfos.Include(x => x.Employee).ToList());
         }
 
         // GET: ESSInfoes/Details/5
@@ -82,7 +95,7 @@ namespace ERS.Controllers
                 ESSInfo info = new ESSInfo
                 {
                     EmployeeId = employee.Id,
-                    EntryTime = DateTime.UtcNow,
+                    EntryTime = DateTime.UtcNow.Date,
                     WorkingArea = model.WorkingArea,
                     ESSCode = essCode
                 };
@@ -361,6 +374,22 @@ namespace ERS.Controllers
         public IActionResult ReportView(string essCode)
         {
             ESSInfo info = _context.ESSInfos.FirstOrDefault(x => x.ESSCode == essCode);
+            ReportViewModel report = new ReportViewModel
+            {
+                ESSInfo = info,
+                Employee = _context.Employees.FirstOrDefault(x => x.Id == info.EmployeeId),
+                EmpProductMap = _context.EmpProductMaps.Where(x => x.ESSInfoId == info.Id).Include(x => x.Product).ToList(),
+                EmpDivisionMap = _context.EmpDivisionMaps.Where(x => x.ESSInfoId == info.Id).Include(x => x.Division).ToList(),
+                EmpDistrictMap = _context.EmpDistrictMaps.Where(x => x.ESSInfoId == info.Id).Include(x => x.District).ToList(),
+                EmpUpazilaMap = _context.EmpUpazilaMaps.Where(x => x.ESSInfoId == info.Id).Include(x => x.Upazila).ToList()
+            };
+            return View(report);
+        }
+
+        [HttpGet]
+        public IActionResult ReportGet(string id)
+        {
+            ESSInfo info = _context.ESSInfos.FirstOrDefault(x => x.ESSCode == id);
             ReportViewModel report = new ReportViewModel
             {
                 ESSInfo = info,

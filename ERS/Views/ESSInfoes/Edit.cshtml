@@ -11,7 +11,7 @@
 <h2 class="alert alert-info text-center">ESS Entry Form</h2>
 
 <hr />
-<input id="employeeId" asp-for="EmployeeId" />
+<input id="employeeId" asp-for="EmployeeId" type="hidden" />
 <div class="row">
     <div class="col-md-12">
         <form>
@@ -25,19 +25,19 @@
             <div class="form-inline">
                 <div class="form-group">
                     <label asp-for="Name"></label>
-                    <input id="employee-name" class="form-control" asp-for="Name" />
+                    <input id="employee-name" class="form-control" asp-for="Name" readonly/>
                 </div>
                 <div class="form-group">
                     <label asp-for="Designation"></label>
-                    <input id="designation" class="form-control" asp-for="Designation" />
+                    <input id="designation" class="form-control" asp-for="Designation" readonly/>
                 </div>
                 <div class="form-group">
                     <label asp-for="WorkingArea"></label>
-                    <input id="workingArea" class="form-control" asp-for="WorkingArea" />
+                    <input id="workingArea" class="form-control" asp-for="WorkingArea" readonly/>
                 </div>
                 <div class="form-group">
                     <label asp-for="Phone"></label>
-                    <input id="employee-phone" class="form-control" asp-for="Phone" />
+                    <input id="employee-phone" class="form-control" asp-for="Phone" readonly/>
                 </div>
             </div>
             <hr />
